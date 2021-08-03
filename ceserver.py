@@ -8,9 +8,10 @@ from enum import IntEnum, auto
 import threading
 import random
 
-ARCH = 0
 PID = 0
 API = 0
+ARCH = 0
+SESSION = 0
 
 PROCESS_ALL_ACCESS = 0x1F0FFF
 
@@ -178,6 +179,23 @@ def GetSymbolListFromFile(filename,output):
     else:
         output[0] = b"\x00\x00\x00\x00\x00\x00\x00\x00"
 
+script_dict = {}
+def load_frida_script(jscode,numberStr):
+    global script_dict
+    session = SESSION
+    script = session.create_script(jscode)
+    def on_message(message, data):
+        print(message)
+    script.on('message', on_message)
+    script.load()
+    script_dict[numberStr] = script
+
+def unload_frida_script(numberStr):
+    global script_dict
+    script = script_dict[numberStr]
+    script.unload()
+    script_dict.pop(numberStr)
+
 def handler(ns,command,thread_count):
     global process_id
     reader = BinaryReader(ns)
@@ -257,7 +275,17 @@ def handler(ns,command,thread_count):
         size = reader.ReadUInt32()
         if(size>0):
             _buf = ns.recv(size)
-            ret = API.WriteProcessMemory(address,list(_buf))
+            #extended functionality
+            #Addresses 0 to 100 will interpret the written content as frida javascript code and execute the script.
+            if 0 <= address <= 100:
+                if _buf.find("UNLOAD".encode()) !=0:
+                    load_frida_script(_buf.decode(),str(address))
+                else:
+                    if str(address) in script_dict:
+                        unload_frida_script(str(address))
+                ret = True
+            else:
+                ret = API.WriteProcessMemory(address,list(_buf))
             if(ret!=False):
                 writer.WriteInt32(size)
             else:
@@ -392,13 +420,17 @@ def main_thread(conn,thread_count):
         if(ret == -1):
             break
 
-def ceserver(pid,api,arch):
+def ceserver(pid,api,arch,session):
     global PID
     global API
     global ARCH
-    API = api
+    global SESSION
+    
     PID = pid
+    API = api
     ARCH = arch
+    SESSION = session
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         thread_count = 0
         s.bind(('127.0.0.1', 52736))

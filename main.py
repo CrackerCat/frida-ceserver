@@ -77,7 +77,7 @@ def main(package):
     script.on('message', on_message)
     script.load()
     api = script.exports
-    ce.ceserver(process_id,api,arch)
+    ce.ceserver(process_id,api,arch,session)
 
 if __name__ == "__main__":
     args = sys.argv
