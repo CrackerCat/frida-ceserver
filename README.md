@@ -29,7 +29,7 @@ If you write "UNLOAD" with the same number, the script will be canceled.
 {$lua}
 [enable]
 local jscode = [[
-console.log("HELLO,WORLD!";)
+console.log("HELLO,WORLD!");
 ]]
 writeString(0,jscode)
 [disable]
