@@ -457,6 +457,7 @@ def ceserver(pid,api,arch,session):
     SESSION = session
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         thread_count = 0
         s.bind(('127.0.0.1', 52736))
         s.listen(32)

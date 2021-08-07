@@ -81,9 +81,13 @@ if(Process.platform=="darwin")
 {
     coreLibraryName = "libSystem.B.dylib";
 }
-else
+else if(Process.platform=="android")
 {
     coreLibraryName = "libc.so";
+}
+else
+{
+    coreLibraryName = null;
 }
 
 var clock_gettimePtr =Module.findExportByName(coreLibraryName,"clock_gettime");
