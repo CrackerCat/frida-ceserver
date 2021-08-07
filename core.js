@@ -403,7 +403,7 @@ rpc.exports = {
         }
         return result;
     },
-    extsetspeed: function (speed) {
+    extsetspeed: function(speed){
         speedhack_initializeSpeed(speed);
 
         if(hookFlag==false)
@@ -413,6 +413,17 @@ rpc.exports = {
             hookFlag = true;
         }
 
+        return 1;
+    },
+    extloadmodule: function(modulepath){
+        Module.load(modulepath);
+        return 1;
+    },
+    extcreatethread: function(startaddress,parameter){
+        var pthread_createPtr = Module.findExportByName(null, "pthread_create");
+        var pthread_create = new NativeFunction(pthread_createPtr,'pointer',['pointer','int','pointer','pointer']);
+        var zero_ptr = Memory.alloc(4);
+        var ret = pthread_create(zero_ptr,0,ptr(startaddress),ptr(parameter));
         return 1;
     }
 }

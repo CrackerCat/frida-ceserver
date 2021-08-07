@@ -263,11 +263,21 @@ def handler(ns,command,thread_count):
         size = reader.ReadUInt32()
         compress = reader.ReadInt8()
         ret = API.ReadProcessMemory(address,size)
-        if(ret != False):
-            writer.WriteInt32(len(ret))
-            ns.sendall(ret)
+        if(compress == 0):
+            if ret != False:
+                writer.WriteInt32(len(ret))
+                ns.sendall(ret)
+            else:
+                writer.WriteInt32(0)
         else:
-            writer.WriteInt32(0)
+            if ret != False:
+                compress_data = zlib.compress(ret,level=compress)
+                writer.WriteInt32(len(ret))
+                writer.WriteInt32(len(compress_data))
+                ns.sendall(compress_data)
+            else:
+                writer.WriteInt32(0)
+                writer.WriteInt32(0)
 
     elif(command == CECMD.CMD_WRITEPROCESSMEMORY):
         handle = reader.ReadUInt32()
@@ -396,6 +406,21 @@ def handler(ns,command,thread_count):
         size = reader.ReadInt32()
         r = API.ExtFree(address,size)
         writer.WriteInt32(r)
+
+    elif(command == CECMD.CMD_LOADMODULE):
+        handle = reader.ReadInt32()
+        modulepathlength = reader.ReadInt32()
+        modulepath = ns.recv(modulepathlength).decode()
+        r = API.ExtLoadModule(modulepath)
+        writer.WriteInt32(r)
+
+    elif(command == CECMD.CMD_CREATETHREAD):
+        handle = reader.ReadInt32()
+        startaddress = reader.ReadUInt64()
+        parameter = reader.ReadUInt64()
+        r = API.ExtCreateThread(startaddress,parameter)
+        threadhandle = random.randint(0,0x10000)
+        writer.WriteInt32(threadhandle)
 
     else:
         pass
