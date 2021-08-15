@@ -36,7 +36,7 @@ writeString(0,jscode)
 writeString(0,[[UNLOAD]])
 ```
   
-# BintUils
+# BinUtils
 ### ARM64 Disassembler/Assembler
 By default, Cheat Engine does not implement the ARM64 disassembler.  
 This can be supported by using the extension BinUtils.  
