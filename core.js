@@ -69,8 +69,6 @@ const PS = Process.pointerSize;
 var coreLibraryName = '';
 if (Process.platform == 'darwin') {
   coreLibraryName = 'libSystem.B.dylib';
-} else if (Process.platform == 'android') {
-  coreLibraryName = 'libc.so';
 } else {
   coreLibraryName = null;
 }
@@ -312,6 +310,14 @@ rpc.exports = {
       var size = symbols[i].size;
       var type = symbols[i].type;
       var name = symbols[i].name;
+      //for speedhack
+      if (Process.platform == 'linux') {
+        if (name.indexOf('clock_gettime') != -1) {
+          name = name.replace('clock_gettime', '___clock_gettime');
+        } else if (name.indexOf('gettimeofday') != -1) {
+          name = name.replace('gettimeofday', '___gettimeofday');
+        }
+      }
       if (type == 'function') {
         type = 0;
         symbollist.push([baseaddress, size, type, name]);
