@@ -203,10 +203,21 @@ function gettimeofdayHook() {
   });
 }
 
-var custom_module_size = {};
+var statPtr = Module.findExportByName(coreLibraryName, 'stat');
+const stat = new NativeFunction(statPtr, 'int', ['pointer', 'pointer']);
+
+function getRealFileSize(filename) {
+  var statStructPtr = Memory.alloc(512);
+  var ret = stat(Memory.allocUtf8String(filename), statStructPtr);
+  if (ret == -1) return -1;
+  var size = statStructPtr.add(0x30).readUInt();
+  return size;
+}
+
+var fix_module_size = false;
 rpc.exports = {
   setconfig: function (config) {
-    custom_module_size = config['custom_module_size'];
+    fix_module_size = config['fix_module_size'];
   },
   readprocessmemory: function (address, size) {
     try {
@@ -239,8 +250,10 @@ rpc.exports = {
     var base = moduleList[0].base;
     var size = moduleList[0].size;
     var name = moduleList[0].name;
-    if (custom_module_size[name]) {
-      size = parseInt(custom_module_size[name], 16);
+    if (fix_module_size) {
+      var path = moduleList[0].path;
+      var real_size = getRealFileSize(path);
+      if (real_size > size) size = real_size;
     }
     moduleListIterator += 1;
     return [base, size, name];
@@ -250,8 +263,10 @@ rpc.exports = {
       var base = moduleList[moduleListIterator].base;
       var size = moduleList[moduleListIterator].size;
       var name = moduleList[moduleListIterator].name;
-      if (custom_module_size[name]) {
-        size = parseInt(custom_module_size[name], 16);
+      if (fix_module_size) {
+        var path = moduleList[moduleListIterator].path;
+        var real_size = getRealFileSize(path);
+        if (real_size > size) size = real_size;
       }
       moduleListIterator += 1;
       return [base, size, name];
