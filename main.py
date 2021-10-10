@@ -3,26 +3,10 @@ import threading
 import time
 import sys
 import ceserver as ce
+import json
 
-#---config---#
-"""
-ClientPC-OS
-
-Android or iOS=>1
-Linux=>0
-"""
-isMobile = 1
-
-"""
-ClientApp-Architecture
-
-i386=>0
-x86_64=>1
-arm=>2
-aarch64=>3
-"""
-arch = 3
-#------------#
+with open("config.json") as f:
+    config = json.loads(f.read())
 
 def get_device():
     mgr = frida.get_device_manager()
@@ -44,7 +28,7 @@ def get_device():
     return device
 
 def main(package):
-    if isMobile == 1:
+    if config["isMobile"] == 1:
         device = get_device()
         apps = device.enumerate_applications()
         target = package
@@ -77,7 +61,8 @@ def main(package):
     script.on('message', on_message)
     script.load()
     api = script.exports
-    ce.ceserver(process_id,api,arch,session)
+    api.SetConfig(config)
+    ce.ceserver(process_id,api,config["arch"],session)
 
 if __name__ == "__main__":
     args = sys.argv

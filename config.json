@@ -1,0 +1,7 @@
+{
+  "isMobile": 1,
+  "arch": 3,
+  "custom_module_size": {
+    "libc.so": "0x3f0000"
+  }
+}

@@ -203,7 +203,11 @@ function gettimeofdayHook() {
   });
 }
 
+var custom_module_size = {};
 rpc.exports = {
+  setconfig: function (config) {
+    custom_module_size = config['custom_module_size'];
+  },
   readprocessmemory: function (address, size) {
     try {
       if (ptr(address).isNull() == false) {
@@ -235,6 +239,9 @@ rpc.exports = {
     var base = moduleList[0].base;
     var size = moduleList[0].size;
     var name = moduleList[0].name;
+    if (custom_module_size[name]) {
+      size = parseInt(custom_module_size[name], 16);
+    }
     moduleListIterator += 1;
     return [base, size, name];
   },
@@ -243,6 +250,9 @@ rpc.exports = {
       var base = moduleList[moduleListIterator].base;
       var size = moduleList[moduleListIterator].size;
       var name = moduleList[moduleListIterator].name;
+      if (custom_module_size[name]) {
+        size = parseInt(custom_module_size[name], 16);
+      }
       moduleListIterator += 1;
       return [base, size, name];
     } else {
