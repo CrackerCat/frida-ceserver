@@ -210,7 +210,13 @@ function getRealFileSize(filename) {
   var statStructPtr = Memory.alloc(512);
   var ret = stat(Memory.allocUtf8String(filename), statStructPtr);
   if (ret == -1) return -1;
-  var size = statStructPtr.add(0x30).readUInt();
+  var sizeOffset = 0;
+  if (Process.platform == 'darwin') {
+    sizeOffset = 0x60;
+  } else {
+    sizeOffset = 0x30;
+  }
+  var size = statStructPtr.add(sizeOffset).readUInt();
   return size;
 }
 
