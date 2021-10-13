@@ -203,7 +203,28 @@ function gettimeofdayHook() {
   });
 }
 
+var statPtr = Module.findExportByName(coreLibraryName, 'stat');
+const stat = new NativeFunction(statPtr, 'int', ['pointer', 'pointer']);
+
+function getRealFileSize(filename) {
+  var statStructPtr = Memory.alloc(512);
+  var ret = stat(Memory.allocUtf8String(filename), statStructPtr);
+  if (ret == -1) return -1;
+  var sizeOffset = 0;
+  if (Process.platform == 'darwin') {
+    sizeOffset = 0x60;
+  } else {
+    sizeOffset = 0x30;
+  }
+  var size = statStructPtr.add(sizeOffset).readUInt();
+  return size;
+}
+
+var fix_module_size = false;
 rpc.exports = {
+  setconfig: function (config) {
+    fix_module_size = config['fix_module_size'];
+  },
   readprocessmemory: function (address, size) {
     try {
       if (ptr(address).isNull() == false) {
@@ -235,6 +256,11 @@ rpc.exports = {
     var base = moduleList[0].base;
     var size = moduleList[0].size;
     var name = moduleList[0].name;
+    if (fix_module_size) {
+      var path = moduleList[0].path;
+      var real_size = getRealFileSize(path);
+      if (real_size > size) size = real_size;
+    }
     moduleListIterator += 1;
     return [base, size, name];
   },
@@ -243,6 +269,11 @@ rpc.exports = {
       var base = moduleList[moduleListIterator].base;
       var size = moduleList[moduleListIterator].size;
       var name = moduleList[moduleListIterator].name;
+      if (fix_module_size) {
+        var path = moduleList[moduleListIterator].path;
+        var real_size = getRealFileSize(path);
+        if (real_size > size) size = real_size;
+      }
       moduleListIterator += 1;
       return [base, size, name];
     } else {
