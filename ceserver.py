@@ -102,7 +102,7 @@ class BinaryReader():
         return ret 
 
 
-    def ReadInt8(self):
+    def ReadUInt8(self):
         result = recvall(self.base,1)
         ret = unpack('<B',result)[0]
         return ret
@@ -465,6 +465,7 @@ def ceserver(pid,api,arch,session):
         while True:
             conn,addr = s.accept()
             print("accept",addr)
+            conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             #conn.settimeout(5000)
             thread_count += 1
             thread = threading.Thread(target=main_thread,args=([conn,thread_count]),daemon=True)

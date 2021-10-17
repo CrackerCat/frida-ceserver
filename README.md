@@ -68,6 +68,12 @@ registerBinUtil(arm64config)
 Android or iOS=>1  
 Linux=>0
 
+### mode
+
+spawn is only valid for mobile device.  
+0:spawn  
+1:attach
+
 ### arch
 
 i386=>0  

@@ -225,6 +225,13 @@ rpc.exports = {
   setconfig: function (config) {
     fix_module_size = config['fix_module_size'];
   },
+  getinfo: function () {
+    var getpidPtr = Module.findExportByName(coreLibraryName, 'getpid');
+    const getpid = new NativeFunction(getpidPtr, 'int', []);
+    var pid = getpid();
+    var info = { pid: pid };
+    return info;
+  },
   readprocessmemory: function (address, size) {
     try {
       if (ptr(address).isNull() == false) {

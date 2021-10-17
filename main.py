@@ -35,12 +35,15 @@ def main(package):
         for app in apps:
             if target == app.identifier or target == app.name:
                 app_identifier = app.identifier
+                app_name = app.name
                 break
-
-        process_id = device.spawn([app_identifier])
-        session = device.attach(process_id)
-        device.resume(process_id)
-        time.sleep(1)
+        if config["mode"] == 0:
+            process_id = device.spawn([app_identifier])
+            session = device.attach(process_id)
+            device.resume(process_id)
+            time.sleep(1)
+        else:
+            session = device.attach(app_name)
     else:
         device = frida.get_remote_device()
         processes = device.enumerate_processes()
@@ -62,6 +65,9 @@ def main(package):
     script.load()
     api = script.exports
     api.SetConfig(config)
+    if config["mode"] == 1:
+        info = api.GetInfo()
+        process_id = info["pid"]
     ce.ceserver(process_id,api,config["arch"],session)
 
 if __name__ == "__main__":
