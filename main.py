@@ -68,7 +68,7 @@ def main(package):
     if config["mode"] == 1:
         info = api.GetInfo()
         process_id = info["pid"]
-    ce.ceserver(process_id,api,config["arch"],session)
+    ce.ceserver(process_id,api,config,session)
 
 if __name__ == "__main__":
     args = sys.argv

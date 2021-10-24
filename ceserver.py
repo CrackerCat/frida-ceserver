@@ -7,11 +7,13 @@ import time
 from enum import IntEnum, auto
 import threading
 import random
+from packaging.version import Version, parse
 
 PID = 0
 API = 0
 ARCH = 0
 SESSION = 0
+CEVERSION = ""
 
 PROCESS_ALL_ACCESS = 0x1F0FFF
 
@@ -234,11 +236,18 @@ def handler(ns,command,thread_count):
             modulename = ret[2].encode()
             modulenamesize = len(modulename)
             modulebase = int(ret[0],16)
+            modulepart = 0
             modulesize = ret[1]
-            bytecode = pack('<iQII'+str(modulenamesize)+'s',1,modulebase,modulesize,modulenamesize,modulename)
+            if parse(CEVERSION) >= parse("7.3.1"):
+                bytecode = pack('<iQIII'+str(modulenamesize)+'s',1,modulebase,modulepart,modulesize,modulenamesize,modulename)
+            else:
+                bytecode = pack('<iQII'+str(modulenamesize)+'s',1,modulebase,modulesize,modulenamesize,modulename)
             ns.sendall(bytecode)
         else:
-            bytecode = pack('<iQII',0,0,0,0)
+            if parse(CEVERSION) >= parse("7.3.1"):
+                bytecode = pack('<iQIII',0,0,0,0,0)
+            else:
+                bytecode = pack('<iQII',0,0,0,0)
             ns.sendall(bytecode)
 
     elif(command == CECMD.CMD_CLOSEHANDLE):
@@ -445,16 +454,18 @@ def main_thread(conn,thread_count):
         if(ret == -1):
             break
 
-def ceserver(pid,api,arch,session):
+def ceserver(pid,api,config,session):
     global PID
     global API
     global ARCH
     global SESSION
+    global CEVERSION
     
     PID = pid
     API = api
-    ARCH = arch
+    ARCH = config["arch"]
     SESSION = session
+    CEVERSION = config["ceversion"]
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

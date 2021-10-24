@@ -7,6 +7,12 @@ Original by Dark Byte.
 
 # Usage
 
+Install python library.
+
+```
+pip install packaging
+```
+
 Install frida on iOS.
 
 ```
@@ -65,8 +71,8 @@ registerBinUtil(arm64config)
 
 ### isMobile
 
-Android or iOS=>1  
-Linux=>0
+Android or iOS:1  
+Linux:0
 
 ### mode
 
@@ -76,14 +82,19 @@ spawn is only valid for mobile device.
 
 ### arch
 
-i386=>0  
-x86_64=>1  
-arm=>2  
-aarch64=>3
+i386:0  
+x86_64:1  
+arm:2  
+aarch64:3
 
 ### fix_module_size
 
 It is not possible to get the exact size of some modules in iOS.  
 In this case, the module size will be corrected to the actual file size in order to get a larger module size.  
-true=>Enable the above function.  
-false=>Disable the above function.
+true:Enable the above function.  
+false:Disable the above function.
+
+## ceversion
+
+Specify the version of the cheat engine itself.  
+Since the part related to communication between the main unit and the ceserver differs depending on the version, the setting is necessary.
