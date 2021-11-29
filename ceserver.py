@@ -65,6 +65,7 @@ class CECMD(IntEnum):
     CMD_SPEEDHACK_SETSPEED       = 30
     CMD_VIRTUALQUERYEXFULL       = 31
     CMD_GETREGIONINFO            = 32
+    CMD_GETABI                   = 33                    
     CMD_AOBSCAN                  = 200
     CMD_COMMANDLIST2             = 255
 
@@ -378,8 +379,12 @@ def handler(ns,command,thread_count):
         return -1
 
     elif(command == CECMD.CMD_GETVERSION):
-        version = 1
-        versionstring = "CHEATENGINE Network 2.0".encode()
+        if parse(CEVERSION) >= parse("7.3.2"):
+            version = 2
+            versionstring = "CHEATENGINE Network 2.1".encode()
+        else:
+            version = 1
+            versionstring = "CHEATENGINE Network 2.0".encode()
         versionsize = len(versionstring)
         bytecode = pack('<ib'+str(versionsize)+'s',version,versionsize,versionstring)
         ns.sendall(bytecode)
@@ -431,6 +436,8 @@ def handler(ns,command,thread_count):
         threadhandle = random.randint(0,0x10000)
         writer.WriteInt32(threadhandle)
 
+    elif(command == CECMD.CMD_GETABI):
+        writer.WriteInt8(1)
     else:
         pass
     return 1
