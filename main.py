@@ -72,4 +72,8 @@ def main(package):
 
 if __name__ == "__main__":
     args = sys.argv
-    main(args[1])
+    target = config["target"]
+    if target == "":
+        main(args[1])
+    else:
+        main(target)

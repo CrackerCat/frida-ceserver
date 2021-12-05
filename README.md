@@ -69,30 +69,34 @@ registerBinUtil(arm64config)
 
 # Config
 
+### target
+
+If you specify it, you don't need to specify the name of the target app in the argument.
+
 ### isMobile
 
-```0```:Linux  
-```1```:Android or iOS
+`0`:Linux  
+`1`:Android or iOS
 
 ### mode
 
 spawn is only valid for mobile device.  
-```0```:spawn  
-```1```:attach
+`0`:spawn  
+`1`:attach
 
 ### arch
 
-```0```:i386  
-```1```:x86_64  
-```2```:arm  
-```3```:aarch64
+`0`:i386  
+`1`:x86_64  
+`2`:arm  
+`3`:aarch64
 
 ### fix_module_size
 
 It is not possible to get the exact size of some modules in iOS.  
 In this case, the module size will be corrected to the actual file size in order to get a larger module size.  
-```true```:Enable the above function   
-```false```:Disable the above function
+`true`:Enable the above function  
+`false`:Disable the above function
 
 ### ceversion
 
